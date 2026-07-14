@@ -1,200 +1,73 @@
 "use client";
 
-import { useState, useEffect, type ReactNode } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GodRays } from "@paper-design/shaders-react";
+import { startCheckoutSession } from "@/app/actions/stripe";
+import Checkout from "@/components/checkout";
+import { products } from "@/lib/products";
 
-type ProductImage = {
-  src: string;
-  objectFit?: "cover" | "contain";
-  objectPosition?: string;
+type HeroProps = {
+  stripePublishableKey: string;
 };
 
-type Product = {
-  id: string;
-  name: string;
-  tagline: string;
-  price: string;
-  description: ReactNode;
-  images: ProductImage[];
-};
-
-const products: Product[] = [
-  {
-    id: "lamp",
-    name: "Crochet Top Pattern PDF",
-    tagline:
-      "Summer Halter Top Tutorial, Mesh Festival Top, Triangle Flow Top, Advanced Beginner",
-    price: "$12",
-    description: (
-      <div className="space-y-5 text-base leading-[170%] text-[#3A3A3A]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#6B6B6B]">
-          DIGITAL DOWNLOAD — NO PHYSICAL ITEM WILL BE SHIPPED
-        </p>
-
-        <p>
-          Follow my instagram:{" "}
-          <a
-            href="https://www.instagram.com/igoz__"
-            target="_blank"
-            rel="noreferrer"
-            className="font-medium text-[#1A1A1A] underline underline-offset-4"
-          >
-            https://www.instagram.com/igoz__
-          </a>
-        </p>
-
-        <p>
-          Create your own Triangle Flow Top with this detailed crochet pattern
-          and step-by-step video tutorial.
-        </p>
-
-        <p>
-          The pattern guides you through making a long-sleeve crochet top using
-          my Triangle Flow stitch design. The sample shown is size S/M, but the
-          construction is customizable, with instructions for adjusting the
-          width, length, neckline, armholes, and sleeves to create your
-          preferred fit.
-        </p>
-
-        <div className="space-y-2">
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
-            WHAT’S INCLUDED
-          </h3>
-          <ul className="flex flex-col gap-2">
-            <li>• 14-page PDF crochet pattern in English</li>
-            <li>• Step-by-step video tutorial</li>
-            <li>• Detailed written instructions</li>
-          </ul>
-        </div>
-
-        <div className="space-y-2">
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
-            SKILL LEVEL
-          </h3>
-          <p>Advanced Beginner</p>
-        </div>
-
-        <div className="space-y-2">
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
-            TERMINOLOGY
-          </h3>
-          <p>US crochet terms</p>
-        </div>
-
-        <div className="space-y-2">
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
-            MATERIALS
-          </h3>
-          <ul className="flex flex-col gap-2">
-            <li>• 3.5 mm crochet hook</li>
-            <li>• Approximately 170 g of yarn for the sample shown</li>
-          </ul>
-        </div>
-
-        <div className="space-y-2 rounded-2xl border border-black/10 bg-white/60 p-4">
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
-            PLEASE NOTE
-          </h3>
-          <p>
-            This is a digital crochet pattern only. No physical item will be
-            shipped.
-          </p>
-          <p>
-            Due to the nature of digital products, returns, exchanges, and
-            cancellations are not accepted. If you have any questions about the
-            pattern, please feel free to contact me.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
-            COPYRIGHT & TERMS OF USE
-          </h3>
-          <p>This pattern is for personal use only.</p>
-          <p>
-            The pattern, including the PDF file, written instructions, photos,
-            and video tutorial, is protected by copyright. It is strictly
-            prohibited to copy, share, redistribute, republish, resell,
-            translate, reproduce, or edit this pattern, in part or in whole,
-            without the designer’s written permission.
-          </p>
-          <p>
-            Uploading the PDF, any part of the pattern, or the video tutorial to
-            AI platforms, file-sharing websites, social media, groups, forums,
-            or any other public or private platform is strictly prohibited.
-          </p>
-          <p>
-            The video tutorial is provided exclusively to purchasers of this
-            pattern. Sharing the video link, screen recording, copying, or
-            reposting the video is not permitted. Creating and publishing
-            tutorials or patterns for the Triangle Flow Top based on this
-            pattern is also prohibited.
-          </p>
-          <p>
-            You are welcome to sell finished items handmade by you from this
-            pattern in small quantities. Credit to IgozKnits as the designer is
-            appreciated.
-          </p>
-          <p>
-            When sharing your finished piece online, crediting @igoz__ and using
-            #TriangleFlowTop is greatly appreciated.
-          </p>
-          <p>
-            Photos from this listing and the pattern may not be used to promote
-            or sell finished items.
-          </p>
-          <p className="pt-2 text-sm text-[#6B6B6B]">
-            © IgozKnits. All rights reserved.
-          </p>
-        </div>
-      </div>
-    ),
-    images: [
-      { src: "/products/listing_1_1.jpg" },
-      { src: "/products/listing_1_2.jpg" },
-      { src: "/products/listing_1_3.jpg" },
-      { src: "/products/listing_1_4.jpg" },
-      { src: "/products/listing_1_5.jpg", objectFit: "contain" },
-      { src: "/products/listing_1_6.jpg", objectFit: "contain" },
-    ],
-  },
-  // {
-  // 	id: 'chair',
-  // 	name: 'Halden Lounge Chair',
-  // 	tagline: 'Mid-century comfort',
-  // 	price: '$849',
-  // 	description:
-  // 		'A mid-century lounge chair upholstered in full-grain tan leather over a solid walnut frame. Built to age beautifully and support you for decades.',
-  // 	details: ['Full-grain tan leather', 'Solid walnut frame', 'Hand-joined construction'],
-  // 	images: ['/products/chair-1.png', '/products/chair-2.png', '/products/chair-3.png'],
-  // },
-  // {
-  // 	id: 'mug',
-  // 	name: 'Terra Stoneware Mug',
-  // 	tagline: 'Made by hand',
-  // 	price: '$38',
-  // 	description:
-  // 		'A generously sized stoneware mug finished in a matte sage glaze. Each piece is thrown by hand, so no two are exactly alike.',
-  // 	details: ['Handmade stoneware', 'Matte sage glaze', 'Dishwasher and microwave safe'],
-  // 	images: ['/products/mug-1.png', '/products/mug-2.png', '/products/mug-3.png'],
-  // },
-];
-
-export default function Hero() {
+export default function Hero({ stripePublishableKey }: HeroProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [slide, setSlide] = useState(0);
+  const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [checkoutClientSecret, setCheckoutClientSecret] = useState<
+    string | null
+  >(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [isStartingCheckout, setIsStartingCheckout] = useState(false);
+  const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
 
   const activeProduct = products.find((p) => p.id === activeId) ?? null;
 
-  const handleOpen = (id: string) => {
+  const resetProductView = (id: string | null) => {
     setSlide(0);
+    setSlideDirection(1);
     setActiveId(id);
+    setCheckoutClientSecret(null);
+    setCheckoutError(null);
+    setIsPurchaseComplete(false);
+  };
+
+  const handleOpen = (id: string) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("product", id);
+    window.history.pushState(null, "", url);
+    resetProductView(id);
   };
 
   const handleClose = () => {
-    setActiveId(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("product");
+    window.history.replaceState(null, "", url);
+    resetProductView(null);
+  };
+
+  const handleBuy = (productId: string) => {
+    if (!stripePublishableKey) {
+      setCheckoutError("Stripe is not configured. Please try again later.");
+      return;
+    }
+
+    setCheckoutError(null);
+    setIsStartingCheckout(true);
+
+    startTransition(async () => {
+      try {
+        const clientSecret = await startCheckoutSession(productId);
+        setCheckoutClientSecret(clientSecret);
+      } catch {
+        setCheckoutError("Unable to start checkout. Please try again.");
+      } finally {
+        setIsStartingCheckout(false);
+      }
+    });
   };
 
   useEffect(() => {
@@ -203,6 +76,63 @@ export default function Hero() {
       document.body.style.overflow = "unset";
     };
   }, [activeId]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const updateScreenSize = () => setIsLargeScreen(mediaQuery.matches);
+
+    updateScreenSize();
+    mediaQuery.addEventListener("change", updateScreenSize);
+    return () => mediaQuery.removeEventListener("change", updateScreenSize);
+  }, []);
+
+  useEffect(() => {
+    // Keep the catalog's first image warm before it is moved into the modal.
+    products.forEach((product) => {
+      const firstImage = product.images[0];
+      if (firstImage) {
+        const preload = new Image();
+        preload.src = firstImage.src;
+      }
+    });
+
+    const syncProductFromUrl = () => {
+      const productId = new URLSearchParams(window.location.search).get(
+        "product",
+      );
+      resetProductView(
+        products.some((product) => product.id === productId) ? productId : null,
+      );
+    };
+
+    syncProductFromUrl();
+    window.addEventListener("popstate", syncProductFromUrl);
+    return () => window.removeEventListener("popstate", syncProductFromUrl);
+  }, []);
+
+  const renderLinkedText = (text: string) => {
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlPattern).map((part, index) =>
+      part.startsWith("http://") || part.startsWith("https://") ? (
+        <a
+          key={`${part}-${index}`}
+          href={part}
+          target="_blank"
+          rel="noreferrer"
+          className="underline decoration-black/30 underline-offset-4 transition-colors hover:text-black hover:decoration-black"
+        >
+          {part}
+        </a>
+      ) : (
+        part
+      ),
+    );
+  };
+
+  const selectSlide = (nextSlide: number, direction: 1 | -1 = 1) => {
+    setSlideDirection(direction);
+    setSlide(nextSlide);
+  };
 
   return (
     <>
@@ -240,26 +170,23 @@ export default function Hero() {
               IgozKnits
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl leading-[160%] text-black max-w-2xl px-4 text-pretty">
-              My grandmother taught me how to crochet when I was six and I’ve
-              carried that skill with me ever since. I returned to it years
-              later with a new appreciation - for the calm process, the texture,
-              and the simple beauty of creating something by hand. I don’t chase
-              trends, I follow what feels right. Each piece in this shop is made
+            <p className="text-base sm:text-lg md:text-xl leading-[160%] text-black max-w-3xl px-4 text-pretty">
+              For the calm process, the texture, and the simple beauty of
+              creating something by hand. Each piece in this shop is made
               thoughtfully with the hope that it brings comfort and ease to the
               one who wears it. Thanks for stopping by.
             </p>
           </div>
 
           {/* Product cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 items-center justify-center">
+          <div className="grid w-full max-w-sm grid-cols-1 place-items-center gap-4 sm:gap-5">
             {products.map((product) => (
               <motion.button
                 key={product.id}
-                layoutId={`card-${product.id}`}
+                layoutId={isLargeScreen ? `card-${product.id}` : undefined}
                 onClick={() => handleOpen(product.id)}
                 style={{ borderRadius: 24 }}
-                className="group relative flex flex-col overflow-hidden bg-[#E9E9E9] text-left transform-gpu will-change-transform"
+                className="group relative flex w-full cursor-pointer flex-col overflow-hidden bg-[#E9E9E9] text-left transform-gpu will-change-transform"
               >
                 <div className="aspect-[5/6] w-full overflow-hidden bg-[#E9E9E9] sm:aspect-[3/4]">
                   <img
@@ -281,7 +208,7 @@ export default function Hero() {
                     <p className="text-md text-[#6B6B6B]">{product.tagline}</p>
                   </div>
                   <span className="text-base sm:text-2xl text-[#1A1A1A] ml-4">
-                    {product.price}
+                    {product.priceLabel}
                   </span>
                 </div>
               </motion.button>
@@ -302,9 +229,15 @@ export default function Hero() {
             />
 
             <motion.div
-              layoutId={`card-${activeProduct.id}`}
+              layoutId={
+                isLargeScreen ? `card-${activeProduct.id}` : undefined
+              }
+              initial={isLargeScreen ? false : { opacity: 0, scale: 0.96, y: 12 }}
+              animate={isLargeScreen ? undefined : { opacity: 1, scale: 1, y: 0 }}
+              exit={isLargeScreen ? undefined : { opacity: 0, scale: 0.98, y: 8 }}
+              transition={{ type: "spring", stiffness: 360, damping: 32 }}
               style={{ borderRadius: 24 }}
-              className="relative mx-auto flex w-full max-w-[1100px] overflow-hidden bg-[#EDEDED] shadow-[0_20px_60px_rgba(0,0,0,0.18)] transform-gpu will-change-transform"
+              className="relative mx-auto flex w-full max-w-[1280px] overflow-hidden bg-[#EDEDED] shadow-[0_20px_60px_rgba(0,0,0,0.18)] transform-gpu will-change-transform"
             >
               <div className="w-full overflow-hidden">
                 <motion.div
@@ -316,48 +249,70 @@ export default function Hero() {
                   {/* Image carousel */}
                   <div className="relative w-full lg:sticky lg:top-0 lg:w-1/2 lg:self-start lg:pt-0">
                     <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F2F2F2] sm:aspect-[4/5] lg:aspect-[3/4] lg:rounded-none lg:mt-0">
-                      <AnimatePresence initial={false} mode="popLayout">
-                        <motion.img
-                          key={slide}
-                          src={
-                            activeProduct.images[slide]?.src ||
-                            "/placeholder.svg"
-                          }
-                          alt={`${activeProduct.name} view ${slide + 1}`}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="absolute inset-0 top-0 h-full w-full"
-                          style={{
-                            objectFit:
-                              activeProduct.images[slide]?.objectFit ?? "cover",
-                            objectPosition:
-                              activeProduct.images[slide]?.objectPosition ??
-                              "center center",
-                          }}
-                        />
-                      </AnimatePresence>
+                      <a
+                        href={
+                          activeProduct.images[slide]?.src || "/placeholder.svg"
+                        }
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`Open ${activeProduct.name} view ${slide + 1} in a new tab`}
+                        className="absolute inset-0 block cursor-zoom-in"
+                      >
+                        <AnimatePresence initial={false} mode="popLayout">
+                          <motion.img
+                            key={activeProduct.images[slide]?.src}
+                            src={
+                              activeProduct.images[slide]?.src ||
+                              "/placeholder.svg"
+                            }
+                            alt={`${activeProduct.name} view ${slide + 1}`}
+                            initial={{
+                              opacity: 0,
+                              scale: 1.015,
+                              x: slideDirection * 24,
+                            }}
+                            animate={{ opacity: 1, scale: 1, x: 0 }}
+                            exit={{
+                              opacity: 0,
+                              scale: 1.015,
+                              x: slideDirection * -24,
+                            }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            className="absolute inset-0 top-0 h-full w-full"
+                            style={{
+                              objectFit:
+                                activeProduct.images[slide]?.objectFit ??
+                                "cover",
+                              objectPosition:
+                                activeProduct.images[slide]?.objectPosition ??
+                                "center center",
+                            }}
+                          />
+                        </AnimatePresence>
+                      </a>
 
                       <button
                         onClick={() =>
-                          setSlide(
-                            (s) =>
-                              (s - 1 + activeProduct.images.length) %
+                          selectSlide(
+                            (slide - 1 + activeProduct.images.length) %
                               activeProduct.images.length,
+                            -1,
                           )
                         }
                         aria-label="Previous image"
-                        className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#1A1A1A] backdrop-blur transition-colors hover:bg-white"
+                        className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/80 text-[#1A1A1A] backdrop-blur transition-colors hover:bg-white"
                       >
                         <ChevronLeft className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() =>
-                          setSlide((s) => (s + 1) % activeProduct.images.length)
+                          selectSlide(
+                            (slide + 1) % activeProduct.images.length,
+                            1,
+                          )
                         }
                         aria-label="Next image"
-                        className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#1A1A1A] backdrop-blur transition-colors hover:bg-white"
+                        className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/80 text-[#1A1A1A] backdrop-blur transition-colors hover:bg-white"
                       >
                         <ChevronRight className="h-5 w-5" />
                       </button>
@@ -368,9 +323,11 @@ export default function Hero() {
                       {activeProduct.images.map((image, index) => (
                         <button
                           key={image.src}
-                          onClick={() => setSlide(index)}
+                          onClick={() =>
+                            selectSlide(index, index >= slide ? 1 : -1)
+                          }
                           aria-label={`Go to image ${index + 1}`}
-                          className={`h-16 w-16 overflow-hidden rounded-lg border-2 transition-colors ${
+                          className={`h-16 w-16 cursor-pointer overflow-hidden rounded-lg border-2 transition-colors ${
                             slide === index
                               ? "border-[#1A1A1A]"
                               : "border-transparent opacity-70 hover:opacity-100"
@@ -400,22 +357,68 @@ export default function Hero() {
                       <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium text-[#1A1A1A] leading-none tracking-[-0.03em]">
                         {activeProduct.name}
                       </h2>
-                      <p className="text-2xl text-[#1A1A1A]">
-                        {activeProduct.price}
+                      <p className="text-4xl text-[#1A1A1A]">
+                        {activeProduct.priceLabel}
                       </p>
                     </div>
 
-                    {/* Buy button — placed above the description */}
-                    <button
-                      type="button"
-                      className="w-full rounded-full bg-[#1A1A1A] px-8 py-3.5 text-base font-medium text-[#F5F5F5] tracking-[-0.01em] transition-colors hover:bg-black"
-                    >
-                      Buy now
-                    </button>
-
-                    <div className="flex flex-col gap-4 border-t border-black/10 pt-6">
-                      {activeProduct.description}
-                    </div>
+                    {isPurchaseComplete ? (
+                      <p className="rounded-2xl border border-black/10 bg-white/60 p-4 text-base text-[#3A3A3A]">
+                        Payment complete. Thank you for your purchase!
+                      </p>
+                    ) : checkoutClientSecret ? (
+                      <Checkout
+                        clientSecret={checkoutClientSecret}
+                        publishableKey={stripePublishableKey}
+                        onComplete={() => setIsPurchaseComplete(true)}
+                      />
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleBuy(activeProduct.id)}
+                          disabled={isStartingCheckout}
+                          className="w-full cursor-pointer rounded-full bg-[#1A1A1A] px-8 py-3.5 text-base font-medium text-[#F5F5F5] tracking-[-0.01em] transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isStartingCheckout ? "Opening checkout…" : "Buy now"}
+                        </button>
+                        {checkoutError && (
+                          <p className="text-sm text-red-700" role="alert">
+                            {checkoutError}
+                          </p>
+                        )}
+                        <div className="flex flex-col gap-5 border-t border-black/10 pt-6 text-base leading-[170%] text-[#3A3A3A]">
+                          {activeProduct.content.map((section, index) => (
+                            <div
+                              key={`${section.heading ?? "content"}-${index}`}
+                              className={
+                                section.emphasized
+                                  ? "space-y-2 rounded-2xl border border-black/10 bg-white/60 p-4"
+                                  : "space-y-2"
+                              }
+                            >
+                              {section.heading && (
+                                <h3 className="text-xs mt-4 font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
+                                  {section.heading}
+                                </h3>
+                              )}
+                              {section.paragraphs?.map((paragraph) => (
+                                <p key={paragraph}>
+                                  {renderLinkedText(paragraph)}
+                                </p>
+                              ))}
+                              {section.items && (
+                                <ul className="flex flex-col gap-2">
+                                  {section.items.map((item) => (
+                                    <li key={item}>• {item}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               </div>
@@ -423,7 +426,7 @@ export default function Hero() {
               {/* Close Button */}
               <button
                 onClick={handleClose}
-                className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-[#1A1A1A] backdrop-blur transition-colors hover:bg-white"
+                className="absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/80 text-[#1A1A1A] backdrop-blur transition-colors hover:bg-white"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
