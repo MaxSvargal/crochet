@@ -4,7 +4,11 @@ import { startTransition, useEffect, useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GodRays } from "@paper-design/shaders-react";
-import { startCheckoutSession } from "@/app/actions/stripe";
+import {
+  checkPatternBlobStatus,
+  getPatternDownloadUrl,
+  startCheckoutSession,
+} from "@/app/actions/stripe";
 import Checkout from "@/components/checkout";
 import { products } from "@/lib/products";
 
@@ -22,6 +26,12 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isStartingCheckout, setIsStartingCheckout] = useState(false);
   const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
+  const [patternDownloadUrl, setPatternDownloadUrl] = useState<string | null>(
+    null,
+  );
+  const [blobStatusMessage, setBlobStatusMessage] = useState<string | null>(
+    null,
+  );
 
   const activeProduct = products.find((p) => p.id === activeId) ?? null;
 
@@ -31,6 +41,7 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
     setCheckoutClientSecret(null);
     setCheckoutError(null);
     setIsPurchaseComplete(false);
+    setPatternDownloadUrl(null);
   };
 
   const handleOpen = (id: string) => {
@@ -66,6 +77,52 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
         setIsStartingCheckout(false);
       }
     });
+  };
+
+  const handlePurchaseComplete = async () => {
+    setIsPurchaseComplete(true);
+
+    try {
+      setPatternDownloadUrl(await getPatternDownloadUrl());
+    } catch (error) {
+      setCheckoutError(
+        error instanceof Error
+          ? error.message
+          : "Your payment was successful, but we could not prepare the download. Please contact us for the pattern.",
+      );
+    }
+  };
+
+  const handleDebugFetchDownloadUrl = async () => {
+    try {
+      const url = await getPatternDownloadUrl();
+      setPatternDownloadUrl(url);
+      setIsPurchaseComplete(true);
+      setCheckoutError(null);
+      setBlobStatusMessage(`Blob download URL generated successfully.`);
+    } catch (error) {
+      setCheckoutError(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch debug download URL. Check blob credentials and store settings.",
+      );
+      setBlobStatusMessage(null);
+      console.error("Debug blob error:", error);
+    }
+  };
+
+  const handleCheckBlobStatus = async () => {
+    try {
+      setCheckoutError(null);
+      const status = await checkPatternBlobStatus();
+      setBlobStatusMessage(status.message);
+    } catch (error) {
+      setBlobStatusMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to check blob status. Check blob credentials and store settings.",
+      );
+    }
   };
 
   useEffect(() => {
@@ -303,9 +360,7 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                       </button>
                       <button
                         onClick={() =>
-                          selectSlide(
-                            (slide + 1) % activeProduct.images.length,
-                          )
+                          selectSlide((slide + 1) % activeProduct.images.length)
                         }
                         aria-label="Next image"
                         className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/80 text-[#1A1A1A] backdrop-blur transition-colors hover:bg-white"
@@ -357,14 +412,30 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                     </div>
 
                     {isPurchaseComplete ? (
-                      <p className="rounded-2xl border border-black/10 bg-white/60 p-4 text-base text-[#3A3A3A]">
-                        Payment complete. Thank you for your purchase!
-                      </p>
+                      <div className="items-center flex flex-col gap-3 rounded-2xl border border-black/10 bg-white/60 p-4 text-base text-[#3A3A3A]">
+                        <p>Payment complete. Thank you for your purchase!</p>
+                        {patternDownloadUrl && (
+                          <a
+                            href={patternDownloadUrl}
+                            download
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex w-fit rounded-full bg-[#1A1A1A] px-5 py-2.5 text-lg font-medium text-[#F5F5F5] transition-colors hover:bg-black"
+                          >
+                            Download your pattern PDF
+                          </a>
+                        )}
+                        {checkoutError && (
+                          <p className="text-sm text-red-700" role="alert">
+                            {checkoutError}
+                          </p>
+                        )}
+                      </div>
                     ) : checkoutClientSecret ? (
                       <Checkout
                         clientSecret={checkoutClientSecret}
                         publishableKey={stripePublishableKey}
-                        onComplete={() => setIsPurchaseComplete(true)}
+                        onComplete={handlePurchaseComplete}
                       />
                     ) : (
                       <>
@@ -376,6 +447,41 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                         >
                           {isStartingCheckout ? "Opening checkout…" : "Buy now"}
                         </button>
+                        <div className="grid gap-3">
+                          <button
+                            type="button"
+                            onClick={handleDebugFetchDownloadUrl}
+                            className="w-full rounded-full border border-[#1A1A1A] bg-white px-8 py-3.5 text-base font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F5F5]"
+                          >
+                            Fetch debug download URL
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCheckBlobStatus}
+                            className="w-full rounded-full border border-[#1A1A1A] bg-white px-8 py-3.5 text-base font-medium text-[#1A1A1A] transition-colors hover:bg-[#F5F5F5]"
+                          >
+                            Check blob status
+                          </button>
+                        </div>
+                        {blobStatusMessage && (
+                          <div className="rounded-2xl border border-black/10 bg-white/60 p-4 text-sm text-[#1A1A1A]">
+                            <p className="font-medium">Blob status</p>
+                            <p>{blobStatusMessage}</p>
+                          </div>
+                        )}
+                        {patternDownloadUrl && (
+                          <div className="rounded-2xl border border-black/10 bg-white/60 p-4 text-sm text-[#1A1A1A]">
+                            <p className="font-medium">Debug download URL</p>
+                            <a
+                              href={patternDownloadUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="break-words underline"
+                            >
+                              {patternDownloadUrl}
+                            </a>
+                          </div>
+                        )}
                         {checkoutError && (
                           <p className="text-sm text-red-700" role="alert">
                             {checkoutError}

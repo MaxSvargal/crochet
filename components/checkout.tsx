@@ -9,7 +9,7 @@ import { loadStripe } from "@stripe/stripe-js";
 type CheckoutProps = {
   clientSecret: string;
   publishableKey: string;
-  onComplete: () => void;
+  onComplete: () => void | Promise<void>;
 };
 
 export default function Checkout({
