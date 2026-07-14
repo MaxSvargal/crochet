@@ -5,13 +5,19 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GodRays } from "@paper-design/shaders-react";
 
+type ProductImage = {
+  src: string;
+  objectFit?: "cover" | "contain";
+  objectPosition?: string;
+};
+
 type Product = {
   id: string;
   name: string;
   tagline: string;
   price: string;
   description: ReactNode;
-  images: string[];
+  images: ProductImage[];
 };
 
 const products: Product[] = [
@@ -146,12 +152,12 @@ const products: Product[] = [
       </div>
     ),
     images: [
-      "/products/listing_1_1.jpg",
-      "/products/listing_1_2.jpg",
-      "/products/listing_1_3.jpg",
-      "/products/listing_1_4.jpg",
-      "/products/listing_1_5.jpg",
-      "/products/listing_1_6.jpg",
+      { src: "/products/listing_1_1.jpg" },
+      { src: "/products/listing_1_2.jpg" },
+      { src: "/products/listing_1_3.jpg" },
+      { src: "/products/listing_1_4.jpg" },
+      { src: "/products/listing_1_5.jpg", objectFit: "contain" },
+      { src: "/products/listing_1_6.jpg", objectFit: "contain" },
     ],
   },
   // {
@@ -257,9 +263,14 @@ export default function Hero() {
               >
                 <div className="aspect-[5/6] w-full overflow-hidden bg-[#E9E9E9] sm:aspect-[3/4]">
                   <img
-                    src={product.images[0] || "/placeholder.svg"}
+                    src={product.images[0]?.src || "/placeholder.svg"}
                     alt={product.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full transition-transform duration-500 group-hover:scale-105"
+                    style={{
+                      objectFit: product.images[0]?.objectFit ?? "cover",
+                      objectPosition:
+                        product.images[0]?.objectPosition ?? "center center",
+                    }}
                   />
                 </div>
                 <div className="flex items-center justify-between gap-2 p-4 sm:p-5">
@@ -309,14 +320,22 @@ export default function Hero() {
                         <motion.img
                           key={slide}
                           src={
-                            activeProduct.images[slide] || "/placeholder.svg"
+                            activeProduct.images[slide]?.src ||
+                            "/placeholder.svg"
                           }
                           alt={`${activeProduct.name} view ${slide + 1}`}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.25 }}
-                          className="absolute inset-0 top-0 h-full w-full object-cover object-top"
+                          className="absolute inset-0 top-0 h-full w-full"
+                          style={{
+                            objectFit:
+                              activeProduct.images[slide]?.objectFit ?? "cover",
+                            objectPosition:
+                              activeProduct.images[slide]?.objectPosition ??
+                              "center center",
+                          }}
                         />
                       </AnimatePresence>
 
@@ -348,7 +367,7 @@ export default function Hero() {
                     <div className="flex gap-3 px-4 pb-4 pt-2">
                       {activeProduct.images.map((image, index) => (
                         <button
-                          key={image}
+                          key={image.src}
                           onClick={() => setSlide(index)}
                           aria-label={`Go to image ${index + 1}`}
                           className={`h-16 w-16 overflow-hidden rounded-lg border-2 transition-colors ${
@@ -358,9 +377,14 @@ export default function Hero() {
                           }`}
                         >
                           <img
-                            src={image || "/placeholder.svg"}
+                            src={image.src || "/placeholder.svg"}
                             alt=""
-                            className="h-full w-full object-cover"
+                            className="h-full w-full"
+                            style={{
+                              objectFit: image.objectFit ?? "cover",
+                              objectPosition:
+                                image.objectPosition ?? "center center",
+                            }}
                           />
                         </button>
                       ))}
