@@ -2,6 +2,16 @@
   "name": "my-nextjs-app",
   "version": "0.1.0",
   "private": true,
+  "browserslist": {
+    "production": [
+      "safari >= 13",
+      "ios_saf >= 13"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 safari version"
+    ]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
