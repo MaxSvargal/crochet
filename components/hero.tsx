@@ -15,7 +15,6 @@ type HeroProps = {
 export default function Hero({ stripePublishableKey }: HeroProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [slide, setSlide] = useState(0);
-  const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [checkoutClientSecret, setCheckoutClientSecret] = useState<
     string | null
@@ -28,7 +27,6 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
 
   const resetProductView = (id: string | null) => {
     setSlide(0);
-    setSlideDirection(1);
     setActiveId(id);
     setCheckoutClientSecret(null);
     setCheckoutError(null);
@@ -129,8 +127,7 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
     );
   };
 
-  const selectSlide = (nextSlide: number, direction: 1 | -1 = 1) => {
-    setSlideDirection(direction);
+  const selectSlide = (nextSlide: number) => {
     setSlide(nextSlide);
   };
 
@@ -219,7 +216,13 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
 
       <AnimatePresence initial={false}>
         {activeProduct && (
-          <div className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6"
+          >
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -268,17 +271,15 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                             alt={`${activeProduct.name} view ${slide + 1}`}
                             initial={{
                               opacity: 0,
-                              scale: 1.015,
-                              x: slideDirection * 24,
+                              scale: 1.025,
                             }}
                             animate={{ opacity: 1, scale: 1, x: 0 }}
                             exit={{
                               opacity: 0,
-                              scale: 1.015,
-                              x: slideDirection * -24,
+                              scale: 1.025,
                             }}
                             transition={{ duration: 0.3, ease: "easeOut" }}
-                            className="absolute inset-0 top-0 h-full w-full"
+                            className="absolute inset-0 h-full w-full"
                             style={{
                               objectFit:
                                 activeProduct.images[slide]?.objectFit ??
@@ -296,7 +297,6 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                           selectSlide(
                             (slide - 1 + activeProduct.images.length) %
                               activeProduct.images.length,
-                            -1,
                           )
                         }
                         aria-label="Previous image"
@@ -308,7 +308,6 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                         onClick={() =>
                           selectSlide(
                             (slide + 1) % activeProduct.images.length,
-                            1,
                           )
                         }
                         aria-label="Next image"
@@ -323,9 +322,7 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                       {activeProduct.images.map((image, index) => (
                         <button
                           key={image.src}
-                          onClick={() =>
-                            selectSlide(index, index >= slide ? 1 : -1)
-                          }
+                          onClick={() => selectSlide(index)}
                           aria-label={`Go to image ${index + 1}`}
                           className={`h-16 w-16 cursor-pointer overflow-hidden rounded-lg border-2 transition-colors ${
                             slide === index
@@ -432,7 +429,7 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                 <X className="h-5 w-5" />
               </button>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>
