@@ -105,38 +105,3 @@ export async function getPatternDownloadUrl(): Promise<string> {
   return presignedUrl;
 }
 
-export async function checkPatternBlobStatus(): Promise<{ found: boolean; message: string }> {
-  const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
-  const storeId = process.env.BLOB_STORE_ID?.trim();
-  const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
-
-  if (!token && !oidcToken) {
-    throw new Error(
-      "Missing Vercel Blob credentials. Set BLOB_READ_WRITE_TOKEN, or set VERCEL_OIDC_TOKEN and BLOB_STORE_ID.",
-    );
-  }
-
-  try {
-    await head(PATTERN_BLOB_PATHNAME, {
-      access: "private",
-      token: token ?? undefined,
-      oidcToken: oidcToken ?? undefined,
-      storeId: storeId ?? undefined,
-    });
-
-    return {
-      found: true,
-      message: `Blob exists at '${PATTERN_BLOB_PATHNAME}' and is accessible with the current credentials.`,
-    };
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unknown Blob head error. Check store ID, file path, and token.";
-
-    return {
-      found: false,
-      message: `Blob check failed: ${message}`,
-    };
-  }
-}
