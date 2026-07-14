@@ -31,8 +31,8 @@ export const products: readonly Product[] = [
     tagline:
       "Summer Halter Top Tutorial, Mesh Festival Top, Triangle Flow Top, Advanced Beginner",
     priceLabel: "$12",
-    priceInCents: 5000,
-    currency: "thb",
+    priceInCents: 1_200,
+    currency: "usd",
     description:
       "Digital PDF crochet pattern for the Triangle Flow Top, including a step-by-step video tutorial.",
     images: [
