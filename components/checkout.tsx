@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
@@ -17,15 +18,21 @@ export default function Checkout({
   publishableKey,
   onComplete,
 }: CheckoutProps) {
-  const stripePromise = loadStripe(publishableKey);
+  const stripePromise = useMemo(
+    () => loadStripe(publishableKey),
+    [publishableKey],
+  );
 
   return (
-    <div id="checkout">
+    <div
+      id="checkout"
+      className="overflow-hidden rounded-2xl bg-[#EDEDED] [&_.StripeElement]:bg-[#EDEDED]"
+    >
       <EmbeddedCheckoutProvider
         stripe={stripePromise}
         options={{ clientSecret, onComplete }}
       >
-        <EmbeddedCheckout />
+        <EmbeddedCheckout className="min-h-[560px] w-full" />
       </EmbeddedCheckoutProvider>
     </div>
   );

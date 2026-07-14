@@ -12,17 +12,30 @@ const PATTERN_BLOB_PATHNAME =
   "patterns/Triangle_Flow_Top_Crochet_Pattern.pdf";
 const DOWNLOAD_URL_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
-export async function startCheckoutSession(productId: string): Promise<string> {
+export async function startCheckoutSession(
+  productId: string,
+): Promise<{ clientSecret: string; publishableKey: string }> {
   const product = getProduct(productId);
+  const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 
   if (!product) {
     throw new Error("The selected product is unavailable.");
+  }
+
+  if (!publishableKey) {
+    throw new Error("Stripe is not configured. Please try again later.");
   }
 
   const session = await stripe.checkout.sessions.create({
     ui_mode: "embedded_page",
     redirect_on_completion: "never",
     mode: "payment",
+    branding_settings: {
+      background_color: "#EDEDED",
+      button_color: "#1A1A1A",
+      border_style: "rounded",
+      font_family: "inter",
+    },
     line_items: [
       {
         price_data: {
@@ -42,7 +55,7 @@ export async function startCheckoutSession(productId: string): Promise<string> {
     throw new Error("Stripe did not return a checkout client secret.");
   }
 
-  return session.client_secret;
+  return { clientSecret: session.client_secret, publishableKey };
 }
 
 export async function getPatternDownloadUrl(): Promise<string> {
@@ -104,4 +117,3 @@ export async function getPatternDownloadUrl(): Promise<string> {
 
   return presignedUrl;
 }
-

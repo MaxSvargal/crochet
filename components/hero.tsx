@@ -11,15 +11,14 @@ import {
 import Checkout from "@/components/checkout";
 import { products } from "@/lib/products";
 
-type HeroProps = {
-  stripePublishableKey: string;
-};
-
-export default function Hero({ stripePublishableKey }: HeroProps) {
+export default function Hero() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [slide, setSlide] = useState(0);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [checkoutClientSecret, setCheckoutClientSecret] = useState<
+    string | null
+  >(null);
+  const [checkoutPublishableKey, setCheckoutPublishableKey] = useState<
     string | null
   >(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -35,6 +34,7 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
     setSlide(0);
     setActiveId(id);
     setCheckoutClientSecret(null);
+    setCheckoutPublishableKey(null);
     setCheckoutError(null);
     setIsPurchaseComplete(false);
     setPatternDownloadUrl(null);
@@ -55,18 +55,15 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
   };
 
   const handleBuy = (productId: string) => {
-    if (!stripePublishableKey) {
-      setCheckoutError("Stripe is not configured. Please try again later.");
-      return;
-    }
-
     setCheckoutError(null);
     setIsStartingCheckout(true);
 
     startTransition(async () => {
       try {
-        const clientSecret = await startCheckoutSession(productId);
+        const { clientSecret, publishableKey } =
+          await startCheckoutSession(productId);
         setCheckoutClientSecret(clientSecret);
+        setCheckoutPublishableKey(publishableKey);
       } catch {
         setCheckoutError("Unable to start checkout. Please try again.");
       } finally {
@@ -361,20 +358,8 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                     </div>
                   </div>
 
-                  {/* Details + buy */}
+                  {/* Details or checkout */}
                   <div className="flex w-full flex-col justify-start gap-6 p-6 sm:p-10 lg:w-1/2 lg:max-h-[calc(92vh-2rem)] lg:overflow-y-auto lg:p-14">
-                    <div className="flex flex-col gap-2">
-                      <p className="text-[10px] font-mono uppercase tracking-[0.5px] text-[#6B6B6B]">
-                        {activeProduct.tagline}
-                      </p>
-                      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium text-[#1A1A1A] leading-none tracking-[-0.03em]">
-                        {activeProduct.name}
-                      </h2>
-                      <p className="text-4xl text-[#1A1A1A]">
-                        {activeProduct.priceLabel}
-                      </p>
-                    </div>
-
                     {isPurchaseComplete ? (
                       <div className="items-center flex flex-col gap-3 rounded-2xl border border-black/10 bg-white/60 p-4 text-base text-[#3A3A3A]">
                         <p>Payment complete. Thank you for your purchase!</p>
@@ -396,13 +381,26 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
                         )}
                       </div>
                     ) : checkoutClientSecret ? (
-                      <Checkout
-                        clientSecret={checkoutClientSecret}
-                        publishableKey={stripePublishableKey}
-                        onComplete={handlePurchaseComplete}
-                      />
+                      <div className="flex flex-col gap-6">
+                        <Checkout
+                          clientSecret={checkoutClientSecret}
+                          publishableKey={checkoutPublishableKey ?? ""}
+                          onComplete={handlePurchaseComplete}
+                        />
+                      </div>
                     ) : (
                       <>
+                        <div className="flex flex-col gap-2">
+                          <p className="text-[10px] font-mono uppercase tracking-[0.5px] text-[#6B6B6B]">
+                            {activeProduct.tagline}
+                          </p>
+                          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium text-[#1A1A1A] leading-none tracking-[-0.03em]">
+                            {activeProduct.name}
+                          </h2>
+                          <p className="text-4xl text-[#1A1A1A]">
+                            {activeProduct.priceLabel}
+                          </p>
+                        </div>
                         <button
                           type="button"
                           onClick={() => handleBuy(activeProduct.id)}
