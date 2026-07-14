@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GodRays } from "@paper-design/shaders-react";
@@ -10,8 +10,7 @@ type Product = {
   name: string;
   tagline: string;
   price: string;
-  description: string;
-  details: string[];
+  description: ReactNode;
   images: string[];
 };
 
@@ -22,13 +21,130 @@ const products: Product[] = [
     tagline:
       "Summer Halter Top Tutorial, Mesh Festival Top, Triangle Flow Top, Advanced Beginner",
     price: "$12",
-    description:
-      "A hand-finished ceramic lamp with a soft linen shade that casts a warm, even glow. Designed to bring a calm, considered light to any corner of your home.",
-    details: [
-      "Matte-white ceramic base",
-      "Natural linen shade",
-      "Dimmable warm LED included",
-    ],
+    description: (
+      <div className="space-y-5 text-base leading-[170%] text-[#3A3A3A]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#6B6B6B]">
+          DIGITAL DOWNLOAD — NO PHYSICAL ITEM WILL BE SHIPPED
+        </p>
+
+        <p>
+          Follow my instagram:{" "}
+          <a
+            href="https://www.instagram.com/igoz__"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-[#1A1A1A] underline underline-offset-4"
+          >
+            https://www.instagram.com/igoz__
+          </a>
+        </p>
+
+        <p>
+          Create your own Triangle Flow Top with this detailed crochet pattern
+          and step-by-step video tutorial.
+        </p>
+
+        <p>
+          The pattern guides you through making a long-sleeve crochet top using
+          my Triangle Flow stitch design. The sample shown is size S/M, but the
+          construction is customizable, with instructions for adjusting the
+          width, length, neckline, armholes, and sleeves to create your
+          preferred fit.
+        </p>
+
+        <div className="space-y-2">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
+            WHAT’S INCLUDED
+          </h3>
+          <ul className="flex flex-col gap-2">
+            <li>• 14-page PDF crochet pattern in English</li>
+            <li>• Step-by-step video tutorial</li>
+            <li>• Detailed written instructions</li>
+          </ul>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
+            SKILL LEVEL
+          </h3>
+          <p>Advanced Beginner</p>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
+            TERMINOLOGY
+          </h3>
+          <p>US crochet terms</p>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
+            MATERIALS
+          </h3>
+          <ul className="flex flex-col gap-2">
+            <li>• 3.5 mm crochet hook</li>
+            <li>• Approximately 170 g of yarn for the sample shown</li>
+          </ul>
+        </div>
+
+        <div className="space-y-2 rounded-2xl border border-black/10 bg-white/60 p-4">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
+            PLEASE NOTE
+          </h3>
+          <p>
+            This is a digital crochet pattern only. No physical item will be
+            shipped.
+          </p>
+          <p>
+            Due to the nature of digital products, returns, exchanges, and
+            cancellations are not accepted. If you have any questions about the
+            pattern, please feel free to contact me.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">
+            COPYRIGHT & TERMS OF USE
+          </h3>
+          <p>This pattern is for personal use only.</p>
+          <p>
+            The pattern, including the PDF file, written instructions, photos,
+            and video tutorial, is protected by copyright. It is strictly
+            prohibited to copy, share, redistribute, republish, resell,
+            translate, reproduce, or edit this pattern, in part or in whole,
+            without the designer’s written permission.
+          </p>
+          <p>
+            Uploading the PDF, any part of the pattern, or the video tutorial to
+            AI platforms, file-sharing websites, social media, groups, forums,
+            or any other public or private platform is strictly prohibited.
+          </p>
+          <p>
+            The video tutorial is provided exclusively to purchasers of this
+            pattern. Sharing the video link, screen recording, copying, or
+            reposting the video is not permitted. Creating and publishing
+            tutorials or patterns for the Triangle Flow Top based on this
+            pattern is also prohibited.
+          </p>
+          <p>
+            You are welcome to sell finished items handmade by you from this
+            pattern in small quantities. Credit to IgozKnits as the designer is
+            appreciated.
+          </p>
+          <p>
+            When sharing your finished piece online, crediting @igoz__ and using
+            #TriangleFlowTop is greatly appreciated.
+          </p>
+          <p>
+            Photos from this listing and the pattern may not be used to promote
+            or sell finished items.
+          </p>
+          <p className="pt-2 text-sm text-[#6B6B6B]">
+            © IgozKnits. All rights reserved.
+          </p>
+        </div>
+      </div>
+    ),
     images: [
       "/products/listing_1_1.jpg",
       "/products/listing_1_2.jpg",
@@ -274,20 +390,7 @@ export default function Hero() {
                     </button>
 
                     <div className="flex flex-col gap-4 border-t border-black/10 pt-6">
-                      <p className="text-base leading-[160%] text-[#3A3A3A] text-pretty">
-                        {activeProduct.description}
-                      </p>
-                      <ul className="flex flex-col gap-2">
-                        {activeProduct.details.map((detail) => (
-                          <li
-                            key={detail}
-                            className="flex items-start gap-2 text-sm text-[#3A3A3A]"
-                          >
-                            <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#1A1A1A]" />
-                            <span>{detail}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      {activeProduct.description}
                     </div>
                   </div>
                 </motion.div>
