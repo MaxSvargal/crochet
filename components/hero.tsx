@@ -255,7 +255,7 @@ export default function Hero() {
                 style={{ borderRadius: 24 }}
                 className="group relative flex flex-col overflow-hidden bg-[#E9E9E9] text-left transform-gpu will-change-transform"
               >
-                <div className="aspect-square w-full overflow-hidden bg-[#DEDEDE]">
+                <div className="aspect-[5/6] w-full overflow-hidden bg-[#E9E9E9] sm:aspect-[3/4]">
                   <img
                     src={product.images[0] || "/placeholder.svg"}
                     alt={product.name}
@@ -281,7 +281,7 @@ export default function Hero() {
 
       <AnimatePresence initial={false}>
         {activeProduct && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+          <div className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -293,18 +293,18 @@ export default function Hero() {
             <motion.div
               layoutId={`card-${activeProduct.id}`}
               style={{ borderRadius: 24 }}
-              className="relative flex max-h-full w-full max-w-[1100px] overflow-hidden bg-[#EDEDED] transform-gpu will-change-transform"
+              className="relative mx-auto flex w-full max-w-[1100px] overflow-hidden bg-[#EDEDED] shadow-[0_20px_60px_rgba(0,0,0,0.18)] transform-gpu will-change-transform"
             >
-              <div className="h-full max-h-[92vh] w-full overflow-y-auto scrollbar-hide">
+              <div className="w-full overflow-hidden">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.15 }}
-                  className="flex w-full flex-col lg:flex-row"
+                  className="flex w-full flex-col lg:flex-row lg:items-start"
                 >
                   {/* Image carousel */}
-                  <div className="relative w-full lg:w-1/2">
-                    <div className="relative aspect-square w-full overflow-hidden bg-[#DEDEDE]">
+                  <div className="relative w-full lg:sticky lg:top-0 lg:w-1/2 lg:self-start lg:pt-0">
+                    <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F2F2F2] sm:aspect-[4/5] lg:aspect-[3/4] lg:rounded-none lg:mt-0">
                       <AnimatePresence initial={false} mode="popLayout">
                         <motion.img
                           key={slide}
@@ -316,7 +316,7 @@ export default function Hero() {
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.25 }}
-                          className="absolute inset-0 h-full w-full object-cover"
+                          className="absolute inset-0 top-0 h-full w-full object-cover object-top"
                         />
                       </AnimatePresence>
 
@@ -345,7 +345,7 @@ export default function Hero() {
                     </div>
 
                     {/* Thumbnails */}
-                    <div className="flex gap-3 p-4">
+                    <div className="flex gap-3 px-4 pb-4 pt-2">
                       {activeProduct.images.map((image, index) => (
                         <button
                           key={image}
@@ -368,7 +368,7 @@ export default function Hero() {
                   </div>
 
                   {/* Details + buy */}
-                  <div className="flex w-full flex-col justify-center gap-6 p-6 sm:p-10 lg:w-1/2 lg:p-14">
+                  <div className="flex w-full flex-col justify-start gap-6 p-6 sm:p-10 lg:w-1/2 lg:max-h-[calc(92vh-2rem)] lg:overflow-y-auto lg:p-14">
                     <div className="flex flex-col gap-2">
                       <p className="text-[10px] font-mono uppercase tracking-[0.5px] text-[#6B6B6B]">
                         {activeProduct.tagline}
