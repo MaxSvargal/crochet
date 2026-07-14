@@ -27,6 +27,7 @@ export async function startCheckoutSession(
   }
 
   const session = await stripe.checkout.sessions.create({
+    adaptive_pricing: { enabled: true },
     ui_mode: "embedded_page",
     redirect_on_completion: "never",
     mode: "payment",
