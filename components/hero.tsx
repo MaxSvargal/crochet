@@ -180,7 +180,8 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
             {products.map((product) => (
               <motion.button
                 key={product.id}
-                layoutId={isLargeScreen ? `card-${product.id}` : undefined}
+                layoutId={`card-${product.id}`}
+                layout={isLargeScreen ? undefined : "position"}
                 onClick={() => handleOpen(product.id)}
                 style={{ borderRadius: 24 }}
                 className="group relative flex w-full cursor-pointer flex-col overflow-hidden bg-[#E9E9E9] text-left transform-gpu will-change-transform"
@@ -217,6 +218,7 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
       <AnimatePresence initial={false}>
         {activeProduct && (
           <motion.div
+            layoutScroll
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -232,13 +234,8 @@ export default function Hero({ stripePublishableKey }: HeroProps) {
             />
 
             <motion.div
-              layoutId={
-                isLargeScreen ? `card-${activeProduct.id}` : undefined
-              }
-              initial={isLargeScreen ? false : { opacity: 0, scale: 0.96, y: 12 }}
-              animate={isLargeScreen ? undefined : { opacity: 1, scale: 1, y: 0 }}
-              exit={isLargeScreen ? undefined : { opacity: 0, scale: 0.98, y: 8 }}
-              transition={{ type: "spring", stiffness: 360, damping: 32 }}
+              layoutId={`card-${activeProduct.id}`}
+              layout={isLargeScreen ? undefined : "position"}
               style={{ borderRadius: 24 }}
               className="relative mx-auto flex w-full max-w-[1280px] overflow-hidden bg-[#EDEDED] shadow-[0_20px_60px_rgba(0,0,0,0.18)] transform-gpu will-change-transform"
             >
